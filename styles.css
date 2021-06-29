@@ -1,0 +1,28 @@
+
+body{
+   height:100%;
+    display:inline;
+    text-align: center;
+    margin-top: 3px;
+    overflow: hidden;
+    font-family: monospace;
+    
+}
+#canvas {
+    background-color: white;
+    border: 1vmin solid black;
+    padding: 1px;
+}
+
+.pause{
+z-index: 1;
+display: block;
+visibility: hidden;
+color:white;
+border-color: white;
+border-style: solid;
+background-color: black;
+margin-top: 0px;
+margin-bottom: 1px;
+font-size: 50px;
+}
