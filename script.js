@@ -183,15 +183,18 @@ class pieceUnit {
         if(this.focused){    
         const answer_col = this.checkcollision();
             
-            if(this.dx !=0 && answer_col.x ){
+            if(this.dx === -1 && answer_col.x && answer_col.x_dir ){
                 this.dx = 0;
-                console.log(answer_col.x);
+            }
+
+            if(this.dx === 1 && answer_col.x && !answer_col.x_dir ){
+                this.dx = 0;
             }
             
            for (let i= 0; i<this.piecesInUnit.length;i++){
                     this.piecesInUnit[i].x += this.dx;
-                    if (this.piecesInUnit[i].x>scale_divider-1){this.piecesInUnit[i].x =0; }
-                    if (this.piecesInUnit[i].x<0){this.piecesInUnit[i].x =scale_divider-1; }
+                    // if (this.piecesInUnit[i].x>scale_divider-1){this.piecesInUnit[i].x =0; }
+                    // if (this.piecesInUnit[i].x<0){this.piecesInUnit[i].x =scale_divider-1; }
                     this.piecesInUnit[i].y += this.dy;
                     }
             
@@ -242,7 +245,7 @@ class pieceUnit {
         }
         
         checkcollision = function(){
-            let collisionList = {x:false, y:false};
+            let collisionList = {x:false, y:false,x_dir: false};
             let piecesInUnit_i =0;
             for (piecesInUnit_i; piecesInUnit_i<this.piecesInUnit.length;piecesInUnit_i++){
                 let unit_i = 0;
@@ -253,13 +256,25 @@ class pieceUnit {
                         
                         //collision x
                     if(this.piecesInUnit[piecesInUnit_i].x+1 === unitsInGame[unit_i].piecesInUnit[i].x && 
-                      this.piecesInUnit[piecesInUnit_i].y === unitsInGame[unit_i].piecesInUnit[i].y ||
-                      this.piecesInUnit[piecesInUnit_i].x-1 === unitsInGame[unit_i].piecesInUnit[i].x && 
-                      this.piecesInUnit[piecesInUnit_i].y === unitsInGame[unit_i].piecesInUnit[i].y
-                      
+                      this.piecesInUnit[piecesInUnit_i].y === unitsInGame[unit_i].piecesInUnit[i].y  ||
+                      this.piecesInUnit[piecesInUnit_i].x+1 === scale_divider                    
                       ){
-                    collisionList.x = true;    
+                    collisionList.x = true;
+                    collisionList.x_dir = false;
                     }
+
+                    if(this.piecesInUnit[piecesInUnit_i].x-1 === unitsInGame[unit_i].piecesInUnit[i].x && 
+                        this.piecesInUnit[piecesInUnit_i].y === unitsInGame[unit_i].piecesInUnit[i].y ||
+                         this.piecesInUnit[piecesInUnit_i].x ===0
+                      
+                        ){
+                      collisionList.x = true;    
+                    collisionList.x_dir = true;
+                      }
+  
+
+
+
                     //collision y    
                     if(this.piecesInUnit[piecesInUnit_i].y+1 === unitsInGame[unit_i].piecesInUnit[i].y && 
                       this.piecesInUnit[piecesInUnit_i].x === unitsInGame[unit_i].piecesInUnit[i].x){
