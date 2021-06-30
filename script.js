@@ -13,7 +13,10 @@ let fallInterval = 5;
 let fallCounter = 0;
 
 let unitsInGame = [];
+let piecelocationYInGame = [];
 let canspawn = false;
+
+let deletedLine = 0;
 
 
 canvas.width = 4*window.innerHeight/9;
@@ -131,6 +134,10 @@ class piece {
         UnitTemplates[this.unitTempIUsed].offsets[this.pieceindex].y = moveYfromO;
         
     }
+    
+   
+        
+    
         
 }
 
@@ -173,8 +180,14 @@ class pieceUnit {
             
         this.dx = direction_push;    
         
-        
         if(this.focused){    
+        const answer_col = this.checkcollision();
+            
+            if(this.dx !=0 && answer_col.x ){
+                this.dx = 0;
+                console.log(answer_col.x);
+            }
+            
            for (let i= 0; i<this.piecesInUnit.length;i++){
                     this.piecesInUnit[i].x += this.dx;
                     if (this.piecesInUnit[i].x>scale_divider-1){this.piecesInUnit[i].x =0; }
@@ -183,21 +196,33 @@ class pieceUnit {
                     }
             
             for (let i= 0; i<this.piecesInUnit.length;i++){
-          if (this.piecesInUnit[i].y===(scale_divider*2)-1 || this.checkcollision()){
+          if (this.piecesInUnit[i].y===(scale_divider*2)-1 || answer_col.y ){
                 setTimeout(()=>{canspawn = true;}, 500);
                 this.focused = false;
                 this.dy = 0;
                 this.dx = 0;
-                
-          }
-            
+            }
+        
             this.piecesInUnit[i].focused = this.focused;
               }
-        
-        
-        }
-        
+        }else{
+          for (let i= 0; i<this.piecesInUnit.length;i++){ 
+              if (piecelocationYInGame[this.piecesInUnit[i].y] === undefined){
+               piecelocationYInGame[this.piecesInUnit[i].y] = 1 ;  
+              }else{
+            piecelocationYInGame[this.piecesInUnit[i].y] += 1}
+            if (this.piecesInUnit[i].y === deletedLine){
+            console.log("yea");
+//            this.piecesInUnit.forEach(function(obj){
+//            delete obj.newpiece;    
+//                
+//            })
+            
             }
+          }
+        }
+            
+             }
         
         
         render = function(){
@@ -217,22 +242,39 @@ class pieceUnit {
         }
         
         checkcollision = function(){
+            let collisionList = {x:false, y:false};
             let piecesInUnit_i =0;
             for (piecesInUnit_i; piecesInUnit_i<this.piecesInUnit.length;piecesInUnit_i++){
                 let unit_i = 0;
                 for (unit_i; unit_i<unitsInGame.length;unit_i++){ 
                     if(!unitsInGame[unit_i].focused ){
                     for (let i= 0; i<unitsInGame[unit_i].piecesInUnit.length;i++){
-
+                        
+                        
+                        //collision x
+                    if(this.piecesInUnit[piecesInUnit_i].x+1 === unitsInGame[unit_i].piecesInUnit[i].x && 
+                      this.piecesInUnit[piecesInUnit_i].y === unitsInGame[unit_i].piecesInUnit[i].y ||
+                      this.piecesInUnit[piecesInUnit_i].x-1 === unitsInGame[unit_i].piecesInUnit[i].x && 
+                      this.piecesInUnit[piecesInUnit_i].y === unitsInGame[unit_i].piecesInUnit[i].y
+                      
+                      ){
+                    collisionList.x = true;    
+                    }
+                    //collision y    
                     if(this.piecesInUnit[piecesInUnit_i].y+1 === unitsInGame[unit_i].piecesInUnit[i].y && 
                       this.piecesInUnit[piecesInUnit_i].x === unitsInGame[unit_i].piecesInUnit[i].x){
-                    console.log("collision at: "+this.piecesInUnit[piecesInUnit_i].x+","+this.piecesInUnit[piecesInUnit_i].y);
-                    return true;
-                    }}
+                    collisionList.y = true; 
+                    }
+                        
+                        
+                    
+                    }
                 }
                 }
-            } 
+            }
+            return collisionList;
         }
+        
         
         turn = function(){
             if (this.focused){
@@ -267,10 +309,28 @@ function startGame(){
 window.requestAnimationFrame(main); 
 }
 
+//check for line to clear
 
+function checkforLine (){
+for (let i = 0; i<piecelocationYInGame.length; i++){
+if (piecelocationYInGame[i] === scale_divider){
+deletedLine = i;  
+    
+    
+    
+}
+    
+    
+}
+    
+}
 
 //update
 function update(){
+
+//console.log(piecelocationYInGame);
+checkforLine();
+piecelocationYInGame = [];    
   
 for (let i= 0; i<unitsInGame.length;i++){   
 unitsInGame[i].update();}
@@ -287,7 +347,8 @@ if(canspawn){
 }else{
     unitsInGame[unitsInGame.length-1].fall(false);
 }
-    
+ 
+deletedLine = -1;    
 }
 
 
@@ -327,7 +388,7 @@ return shapes[Math.floor(Math.random()*shapes.length)]}
 //input handling und so
 
 addEventListener("keydown", e => {
-    console.log(e.keyCode);
+ //   console.log(e.keyCode);
     switch(e.keyCode){
         case 65: 
             direction_push = -1;
