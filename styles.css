@@ -3,15 +3,15 @@ body{
    height:100%;
     display:inline;
     text-align: center;
-    margin-top: 3px;
+    margin-top: 1vmin;
     overflow: hidden;
     font-family: monospace;
     
 }
-#canvas {
+canvas {
     background-color: white;
-    border: 1vmin solid black;
-    padding: 1px;
+    border: 2vmin ridge black;
+    padding: 0.5vmin;
 }
 
 .pause{
@@ -24,5 +24,5 @@ border-style: solid;
 background-color: black;
 margin-top: 0px;
 margin-bottom: 1px;
-font-size: 20px;
+font-size: 2.5vmin;;
 }

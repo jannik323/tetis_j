@@ -1,6 +1,8 @@
 "use strict";
 
-let can = document.querySelector("canvas");
+let can = document.getElementById("canvas");
+let can2 = document.getElementById("preview");
+
 const cPi = Math.PI;
 let GameSpeed = 30;
 let lastGameSpeed = 0;
@@ -19,51 +21,60 @@ let canspawn = false;
 let deletedLine = 0;
 
 
-canvas.width = 4*window.innerHeight/9;
-canvas.height = 8*window.innerHeight/9;
+
+can.width = 4*window.innerHeight/9;
+can.height = 8*window.innerHeight/9;
 let scale_divider = 14 //window.prompt("scale_divider")
-let scale = canvas.width/scale_divider;
+let scale = can.width/scale_divider;
 
 let ctx = can.getContext("2d");
 
 
-const colors = ["blue","black","red","yellow","green"]
+
+can2.width = 2*window.innerHeight/9;
+can2.height = 2*window.innerHeight/9;
+let scaledivider2 = 7 //window.prompt("scale_divider")
+let scale2 = can2.width/scaledivider2;
+
+let ctx2 = can2.getContext("2d");
+
+
 // hier
 //UnitTemplate with offsets n stuff
 const UnitTemplates = [
     
     {offsets : [{x: 0, y:0},{x: -1, y:-1},{x: -1, y:0},{x: 1, y:0}
                 ],
-    unitName: "pieceJ",
+    unitName: "piece_J",
     color: "#004de4"},
     
     {offsets : [{x: 0, y:0},{x: 1, y:0},{x: -1, y:0}
                 ,{x: -1, y:1}],
-    unitName: "pieceL",
+    unitName: "piece_L",
     color: "#e46200"},
     
     {offsets : [{x: 0, y:0},{x: -1, y:0},{x: 1, y:0},{x: 2, y:0}],
-    unitName: "pieceI",
+    unitName: "piece_I",
     color: "#01e4e4"},
     
     {offsets : [{x: 0, y:0},{x: 1, y:0}
                 ,{x: 0, y:1},{x: 1, y:1}],
-    unitName: "pieceO",
+    unitName: "piece_O",
     color: "#e4de00"},
     
     {offsets : [{x: 0, y:0},{x: -1, y:0},{x: 1, y:0}
                 ,{x: 0, y:1}],
-    unitName: "pieceT",
+    unitName: "piece_T",
     color: "#9c13e4"},
     
     {offsets : [{x: 0, y:0},{x: 1, y:0}
                ,{x: -1, y:-1},{x: 0, y:-1}],
-    unitName: "pieceZ",
+    unitName: "piece_Z",
     color: "#e40027"},
     
     {offsets : [{x: 0, y:0},{x: -1, y:0},{x: 0, y:-1}
                ,{x: 1, y:-1}],
-    unitName: "pieceS",
+    unitName: "piece_S",
     color: "#01e427"},
     
 // non default -> selbst ausgedachte    
@@ -72,12 +83,6 @@ const UnitTemplates = [
                 ,{x: 0, y:1},{x: 1, y:1}],
     unitName: "pieceP",
     color: "grey"},
-    
-//    {offsets : [{x: 0, y:0},{x: 1, y:0},{x: 2, y:0} // einfaches erstellen von UNits
-//               ,{x: 0, y:1},{x: 1, y:1},{x: 2, y:1} // einfach die pos löschen die man nicht haben will
-//               ,{x: 0, y:2},{x: 1, y:2},{x: 2, y:2}], // dies ist ein 3*3 block
-//    unitName: "pieceBIGO",
-//    color: "red"},
 
 
 ]
@@ -87,7 +92,8 @@ const shapes = []
 for (let iUnit= 0; iUnit<UnitTemplates.length; iUnit++){
 shapes.push(UnitTemplates[iUnit].unitName );
 }
-
+let nextshape = randomshape();
+let nextshapeID = arrayMap();
 
 
 // piece (ein block)
@@ -395,47 +401,124 @@ if (fallCounter>fallInterval){
 if(canspawn){
     spawnUnit();
     canspawn = false;
+    nextshape = randomshape(); 
+    nextshapeID = arrayMap();
+    console.log(nextshapeID);
 }
 }else{
     unitsInGame[unitsInGame.length-1].fall(false);
 }
  
 deletedLine = -1;    
+
 }
 
 
 //render
 function render(){
-ctx.clearRect(0,0,canvas.width,canvas.height)
+
+
+ctx.clearRect(0,0,can.width,can.height)
+ctx2.clearRect(0,0,can.width,can.height)
     
+preview();
     
 for (let i= 0; i<unitsInGame.length;i++){   
 unitsInGame[i].render();}
+
 }
-
-//random pos (brauch nicht?)
-
-function randomPosPiece(){
-return Math.ceil(Math.random()*3)-2;}
 
 
 // spawn new
 
 function spawnUnit(){
     
-    const NewUnit = new pieceUnit(scale_divider/2,0,randomshape());
-    unitsInGame.push(NewUnit);}
+    const NewUnit = new pieceUnit(scale_divider/2,0,nextshape);
+    unitsInGame.push(NewUnit);
+}
     
-
-// random color
-
-function randomColor(){
-return colors[Math.floor(Math.random()*colors.length)]}
+    
 
 //random unitshape
 
 function randomshape(){
 return shapes[Math.floor(Math.random()*shapes.length)]}
+
+
+//preview
+
+function preview(){
+
+  
+    for (let i= 0; i<UnitTemplates[nextshapeID].offsets.length; i++){
+
+
+                    
+     ctx2.lineWidth = 3;
+     ctx2.fillStyle= UnitTemplates[nextshapeID].color;
+
+     ctx2.fillRect((UnitTemplates[nextshapeID].offsets[i].x*scale2)+scale2*scaledivider2/2-scale2, 
+     (UnitTemplates[nextshapeID].offsets[i].y*scale2)+scale2*scaledivider2/2-scale2,
+     scale2, scale2);
+
+        let thix = (UnitTemplates[nextshapeID].offsets[i].x*scale2)+scale2*scaledivider2/2-scale2;
+        let thiy = (UnitTemplates[nextshapeID].offsets[i].y*scale2)+scale2*scaledivider2/2-scale2;
+
+        ctx2.fillStyle= "black";
+         ctx2.strokeRect((UnitTemplates[nextshapeID].offsets[i].x*scale2)+scale2*scaledivider2/2-scale2, 
+         (UnitTemplates[nextshapeID].offsets[i].y*scale2)+scale2*scaledivider2/2-scale2,
+         scale2, scale2);
+        
+         ctx2.lineWidth = 4;
+         ctx2.globalAlpha = 0.5;
+         ctx2.strokeStyle = "white";
+
+         ctx2.beginPath();
+          ctx2.moveTo((thix)+scale2/10,(thiy)+scale2/10);
+         ctx2.lineTo((thix)+scale2-scale2/10,(thiy)+scale2/10);
+             ctx2.stroke();
+            ctx2.beginPath();
+           ctx2.moveTo((thix)+scale2/10,(thiy)+scale2/10);
+             ctx2.lineTo((thix)+scale2/10,(thiy)+scale2-scale2/10);
+          ctx2.stroke();
+          ctx2.strokeStyle = "black";
+            ctx2.globalAlpha = 0.5;
+            ctx2.beginPath();
+            ctx2.moveTo((thix)+scale2/10,(thiy)+scale2-scale2/10);
+             ctx2.lineTo((thix)+scale2-scale2/10,(thiy)+scale2-scale2/10);
+             ctx2.lineTo((thix)+scale2-scale2/10,(thiy)+scale2/10);
+             
+             ctx2.stroke();
+             
+          ctx2.strokeStyle = "black";
+             ctx2.globalAlpha = 1;        
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    }
+
+        
+
+}
+
+// find id for nextshape
+
+function arrayMap() {
+  let pos = UnitTemplates.map(function (e) {
+    return e.unitName;
+  }).indexOf(nextshape);
+return pos;
+}
 
 //input handling und so
 
