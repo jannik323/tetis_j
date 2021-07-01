@@ -2,7 +2,7 @@
 
 let can = document.querySelector("canvas");
 const cPi = Math.PI;
-let GameSpeed = 60;
+let GameSpeed = 30;
 let lastGameSpeed = 0;
 
 let lastRenderTime = 0;
@@ -32,39 +32,39 @@ const colors = ["blue","black","red","yellow","green"]
 //UnitTemplate with offsets n stuff
 const UnitTemplates = [
     
-    {offsets : [{x: 0, y:0},{x: 0, y:-1},{x: 1, y:0},{x: 2, y:0}
+    {offsets : [{x: 0, y:0},{x: -1, y:-1},{x: -1, y:0},{x: 1, y:0}
                 ],
     unitName: "pieceJ",
-    color: "blue"},
+    color: "#004de4"},
     
-    {offsets : [{x: 0, y:0},{x: 1, y:0},{x: 2, y:0}
-                ,{x: 0, y:1}],
+    {offsets : [{x: 0, y:0},{x: 1, y:0},{x: -1, y:0}
+                ,{x: -1, y:1}],
     unitName: "pieceL",
-    color: "orange"},
+    color: "#e46200"},
     
     {offsets : [{x: 0, y:0},{x: -1, y:0},{x: 1, y:0},{x: 2, y:0}],
     unitName: "pieceI",
-    color: "skyblue"},
+    color: "#01e4e4"},
     
     {offsets : [{x: 0, y:0},{x: 1, y:0}
                 ,{x: 0, y:1},{x: 1, y:1}],
     unitName: "pieceO",
-    color: "yellow"},
+    color: "#e4de00"},
     
     {offsets : [{x: 0, y:0},{x: -1, y:0},{x: 1, y:0}
                 ,{x: 0, y:1}],
     unitName: "pieceT",
-    color: "purple"},
+    color: "#9c13e4"},
     
     {offsets : [{x: 0, y:0},{x: 1, y:0}
                ,{x: -1, y:-1},{x: 0, y:-1}],
     unitName: "pieceZ",
-    color: "green"},
+    color: "#e40027"},
     
     {offsets : [{x: 0, y:0},{x: -1, y:0},{x: 0, y:-1}
                ,{x: 1, y:-1}],
     unitName: "pieceS",
-    color: "red"},
+    color: "#01e427"},
     
 // non default -> selbst ausgedachte    
     
@@ -72,15 +72,6 @@ const UnitTemplates = [
                 ,{x: 0, y:1},{x: 1, y:1}],
     unitName: "pieceP",
     color: "grey"},
-    
-    {offsets : [{x: 0, y:0},{x: 1, y:0}],
-    unitName: "piecePill",
-    color: "olive"},
-    
-    {offsets : [{x: 0, y:0},{x: 1, y:0},{x: 2, y:0}
-                ,{x: 3, y:0},{x: 0, y:1}],
-    unitName: "pieceLBig",
-    color: "pink"},
     
 //    {offsets : [{x: 0, y:0},{x: 1, y:0},{x: 2, y:0} // einfaches erstellen von UNits
 //               ,{x: 0, y:1},{x: 1, y:1},{x: 2, y:1} // einfach die pos löschen die man nicht haben will
@@ -112,11 +103,36 @@ class piece {
     }
     
     render = function(color){
+        
         ctx.lineWidth = 3;
         ctx.fillStyle= color;
         ctx.fillRect(scale*this.x,scale*this.y,scale , scale);
-//        ctx.fillStyle= "black";
-//        ctx.strokeRect(scale*this.x,scale*this.y,scale , scale);
+        ctx.fillStyle= "black";
+        // ctx.strokeRect(scale*this.x,scale*this.y,scale , scale);
+        
+        ctx.lineWidth = 4;
+        ctx.globalAlpha = 0.5;
+        ctx.strokeStyle = "white";
+        ctx.beginPath();
+        ctx.moveTo((scale*this.x)+scale/10,(scale*this.y)+scale/10);
+        ctx.lineTo((scale*this.x)+scale-scale/10,(scale*this.y)+scale/10);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo((scale*this.x)+scale/10,(scale*this.y)+scale/10);
+        ctx.lineTo((scale*this.x)+scale/10,(scale*this.y)+scale-scale/10);
+        ctx.stroke();
+        ctx.strokeStyle = "black";
+        ctx.globalAlpha = 0.5;
+        ctx.beginPath();
+        ctx.moveTo((scale*this.x)+scale/10,(scale*this.y)+scale-scale/10);
+        ctx.lineTo((scale*this.x)+scale-scale/10,(scale*this.y)+scale-scale/10);
+        ctx.lineTo((scale*this.x)+scale-scale/10,(scale*this.y)+scale/10);
+
+        ctx.stroke();
+
+        ctx.strokeStyle = "black";
+        ctx.globalAlpha = 1;
+
     }
     
     turn = function(){
@@ -168,19 +184,15 @@ class pieceUnit {
                                     UnitTemplates[unitTemplateIndex].offsets[iOffset].y+this.y,unitTemplateIndex,iOffset);
             this.piecesInUnit[iOffset] = newpiece;
         }
-        
-//        this.piecesInUnit[0] = piece_1;
-//        const piece_2 = new piece(this.x+randomPosPiece(),this.y+randomPosPiece());  
-//        this.piecesInUnit[1] = piece_2;
-//        const piece_3 = new piece(this.x+randomPosPiece(),this.y+randomPosPiece());  
-//        this.piecesInUnit[2] = piece_3;
                 
     }
         update = function(){
             
-        this.dx = direction_push;    
+          
         
         if(this.focused){    
+
+        this.dx = direction_push;              
         const answer_col = this.checkcollision();
             
             if(this.dx === -1 && answer_col.x && answer_col.x_dir ){
@@ -191,12 +203,7 @@ class pieceUnit {
                 this.dx = 0;
             }
             
-           for (let i= 0; i<this.piecesInUnit.length;i++){
-                    this.piecesInUnit[i].x += this.dx;
-                    // if (this.piecesInUnit[i].x>scale_divider-1){this.piecesInUnit[i].x =0; }
-                    // if (this.piecesInUnit[i].x<0){this.piecesInUnit[i].x =scale_divider-1; }
-                    this.piecesInUnit[i].y += this.dy;
-                    }
+           
             
             for (let i= 0; i<this.piecesInUnit.length;i++){
           if (this.piecesInUnit[i].y===(scale_divider*2)-1 || answer_col.y ){
@@ -205,9 +212,20 @@ class pieceUnit {
                 this.dy = 0;
                 this.dx = 0;
             }
+
+
+            
         
             this.piecesInUnit[i].focused = this.focused;
               }
+
+            for (let i= 0; i<this.piecesInUnit.length;i++){
+                this.piecesInUnit[i].x += this.dx;
+                // if (this.piecesInUnit[i].x>scale_divider-1){this.piecesInUnit[i].x =0; }
+                // if (this.piecesInUnit[i].x<0){this.piecesInUnit[i].x =scale_divider-1; }
+                this.piecesInUnit[i].y += this.dy;
+                }    
+
         }else{
           for (let i= 0; i<this.piecesInUnit.length;i++){ 
               if (piecelocationYInGame[this.piecesInUnit[i].y] === undefined){
@@ -247,10 +265,11 @@ class pieceUnit {
         checkcollision = function(){
             let collisionList = {x:false, y:false,x_dir: false};
             let piecesInUnit_i =0;
+            
             for (piecesInUnit_i; piecesInUnit_i<this.piecesInUnit.length;piecesInUnit_i++){
                 let unit_i = 0;
                 for (unit_i; unit_i<unitsInGame.length;unit_i++){ 
-                    if(!unitsInGame[unit_i].focused ){
+                    if(!unitsInGame[unit_i].focused){
                     for (let i= 0; i<unitsInGame[unit_i].piecesInUnit.length;i++){
                         
                         
@@ -281,6 +300,23 @@ class pieceUnit {
                     collisionList.y = true; 
                     }
                         
+                        
+                    
+                    }
+                }else{
+                    
+                    for (let i= 0; i<unitsInGame[unitsInGame.length-1].piecesInUnit.length;i++){
+                     
+                        //collision x
+                    if(this.piecesInUnit[piecesInUnit_i].x+1 === scale_divider){
+                    collisionList.x = true;
+                    collisionList.x_dir = false;
+                    }
+
+                    if(this.piecesInUnit[piecesInUnit_i].x ===0){
+                      collisionList.x = true;    
+                    collisionList.x_dir = true;
+                      }
                         
                     
                     }
@@ -403,7 +439,7 @@ return shapes[Math.floor(Math.random()*shapes.length)]}
 //input handling und so
 
 addEventListener("keydown", e => {
- //   console.log(e.keyCode);
+    console.log(e.keyCode);
     switch(e.keyCode){
         case 65: 
             direction_push = -1;
@@ -422,9 +458,7 @@ addEventListener("keydown", e => {
                 GameSpeed = lastGameSpeed;
                 document.getElementsByClassName("pause")[0].style.visibility = "hidden";}
             break;
-//        case 32:
-//            spawnUnit();
-//            break;
+
         case 82: // r
             unitsInGame = [];
             spawnUnit();
@@ -433,7 +467,7 @@ addEventListener("keydown", e => {
         case 83: //s
             fallCounter+= 2
             break;
-        case 69: //e
+        case 69: //e 
             unitsInGame[unitsInGame.length-1].turn();
             break;
         case 81: // q
@@ -441,6 +475,9 @@ addEventListener("keydown", e => {
             unitsInGame[unitsInGame.length-1].turn();
             unitsInGame[unitsInGame.length-1].turn();
             
+            break;
+        case 32:
+            fallCounter = fallInterval+1;
             break;
                 } 
 })
