@@ -108,6 +108,8 @@ class piece {
         ctx.fillStyle= color;
         ctx.fillRect(scale*this.x,scale*this.y,scale , scale);
         ctx.fillStyle= "black";
+        ctx.strokeRect(scale*this.x,scale*this.y,scale , scale);
+
         // ctx.strokeRect(scale*this.x,scale*this.y,scale , scale);
         
         ctx.lineWidth = 4;
@@ -233,11 +235,10 @@ class pieceUnit {
               }else{
             piecelocationYInGame[this.piecesInUnit[i].y] += 1}
             if (this.piecesInUnit[i].y === deletedLine){
-            console.log("yea");
-//            this.piecesInUnit.forEach(function(obj){
-//            delete obj.newpiece;    
-//                
-//            })
+            console.log(this.piecesInUnit[i]);
+            // this.piecesInUnit[i] = {};
+            // deletedLine = -1;
+
             
             }
           }
@@ -439,7 +440,7 @@ return shapes[Math.floor(Math.random()*shapes.length)]}
 //input handling und so
 
 addEventListener("keydown", e => {
-    console.log(e.keyCode);
+  //  console.log(e.keyCode);
     switch(e.keyCode){
         case 65: 
             direction_push = -1;
