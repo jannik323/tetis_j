@@ -62,3 +62,8 @@ label{
     display: block;
 
 }
+
+button{
+
+    padding: 1.5vmin;
+}
