@@ -103,7 +103,8 @@ const shapes = []
 for (let iUnit= 0; iUnit<UnitTemplates.length; iUnit++){
 shapes.push(UnitTemplates[iUnit].unitName );
 }
-let nextshape = randomshape();
+
+let nextshape = shapes[Math.floor(Math.random()*shapes.length)];
 let nextshapeID = arrayMap();
 
 
@@ -501,7 +502,14 @@ return element.y !== deletedLine;
 //random unitshape
 
 function randomshape(){
-return shapes[Math.floor(Math.random()*shapes.length)]}
+    let newshape;
+
+    do {
+    newshape = shapes[Math.floor(Math.random()*shapes.length)]}
+    while(newshape === nextshape);
+        
+    
+    return newshape}
 
 
 //preview
@@ -608,7 +616,6 @@ addEventListener("keydown", e => {
         case 27:
             pausegame();
             break;
-
         case 82: // r
             unitsInGame = [];
             spawnUnit();
