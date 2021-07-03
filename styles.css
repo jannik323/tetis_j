@@ -10,11 +10,12 @@ body{
 }
 canvas {
     background-color: white;
-    border: 2vmin ridge black;
+    border: 1vmin ridge black;
     padding: 0.5vmin;
 }
 
 .pause{
+position: absolute;
 z-index: 1;
 display: block;
 visibility: hidden;
@@ -24,5 +25,30 @@ border-style: solid;
 background-color: black;
 margin-top: 0px;
 margin-bottom: 1px;
-font-size: 2.5vmin;;
+font-size: 2.5vmin;
+padding: 2vmin;
+}
+
+.second{
+position:absolute ;
+margin-left: 1vmin;
+display:inline;
+}
+
+
+label{
+    position: absolute;
+    border: 1vmin ridge black;
+    padding: 1vmin;
+    font-size: 2vmin;
+}
+
+#preview{
+    margin-top: 8vmin;
+}
+
+#score{
+    margin-top: 2vmin;
+    position: absolute;
+    display: block;
 }

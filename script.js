@@ -2,6 +2,8 @@
 
 let can = document.getElementById("canvas");
 let can2 = document.getElementById("preview");
+let can3 = document.getElementById("score");
+
 
 const cPi = Math.PI;
 let GameSpeed = 30;
@@ -19,6 +21,8 @@ let piecelocationYInGame = [];
 let canspawn = false;
 
 let deletedLine = 0;
+let deletCounter = 0;
+let gameScore = 0;
 
 
 
@@ -26,7 +30,6 @@ can.width = 4*window.innerHeight/9;
 can.height = 8*window.innerHeight/9;
 let scale_divider = 14 //window.prompt("scale_divider")
 let scale = can.width/scale_divider;
-
 let ctx = can.getContext("2d");
 
 
@@ -35,9 +38,13 @@ can2.width = 2*window.innerHeight/9;
 can2.height = 2*window.innerHeight/9;
 let scaledivider2 = 7 //window.prompt("scale_divider")
 let scale2 = can2.width/scaledivider2;
-
 let ctx2 = can2.getContext("2d");
 
+can3.width = 2*window.innerHeight/9;
+can3.height = 1*window.innerHeight/9;
+let scaledivider3 = 4 //window.prompt("scale_divider")
+let scale3 = can3.width/scaledivider3;
+let ctx3 = can3.getContext("2d");
 
 // hier
 //UnitTemplate with offsets n stuff
@@ -84,6 +91,10 @@ const UnitTemplates = [
     unitName: "pieceP",
     color: "grey"},
 
+    
+    {offsets : [{x: 0, y:0},{x: 1, y:0}],
+unitName: "piece_",
+color: "pink"},
 
 ]
 
@@ -158,6 +169,12 @@ class piece {
         UnitTemplates[this.unitTempIUsed].offsets[this.pieceindex].y = moveYfromO;
         
     }
+
+    movedown = function(){
+        if(this.y<deletedLine){
+        this.y++;}
+
+    }
     
    
         
@@ -184,7 +201,6 @@ class pieceUnit {
         }
         }
         this.color = UnitTemplates[unitTemplateIndex].color;
-        console.log("unit template id: " +unitTemplateIndex);
         
         for (let iOffset= 0; iOffset<UnitTemplates[unitTemplateIndex].offsets.length; iOffset++){
             
@@ -219,15 +235,10 @@ class pieceUnit {
                 this.focused = false;
                 this.dy = 0;
                 this.dx = 0;
-            }
-
-
-            
-        
-            this.piecesInUnit[i].focused = this.focused;
-              }
+            }}
 
             for (let i= 0; i<this.piecesInUnit.length;i++){
+                this.piecesInUnit[i].focused = this.focused;
                 this.piecesInUnit[i].x += this.dx;
                 // if (this.piecesInUnit[i].x>scale_divider-1){this.piecesInUnit[i].x =0; }
                 // if (this.piecesInUnit[i].x<0){this.piecesInUnit[i].x =scale_divider-1; }
@@ -235,22 +246,39 @@ class pieceUnit {
                 }    
 
         }else{
+
+
           for (let i= 0; i<this.piecesInUnit.length;i++){ 
+
               if (piecelocationYInGame[this.piecesInUnit[i].y] === undefined){
                piecelocationYInGame[this.piecesInUnit[i].y] = 1 ;  
               }else{
-            piecelocationYInGame[this.piecesInUnit[i].y] += 1}
-            if (this.piecesInUnit[i].y === deletedLine){
-            console.log(this.piecesInUnit[i]);
-            // this.piecesInUnit[i] = {};
-            // deletedLine = -1;
+            piecelocationYInGame[this.piecesInUnit[i].y] += 1}}
+
 
             
-            }
-          }
+        //  for (let i= 0; i<this.piecesInUnit.length;i++){  //old alternative way with ..problems or smth
+        //     if (this.piecesInUnit[i].y === deletedLine && deletedLine !== -1){
+        //         if(this.piecesInUnit.length === 1){this.piecesInUnit = [];}
+        //         else{
+        //         this.piecesInUnit.splice(i,1);}
+        //     deletCounter++
+        //     if (deletCounter===scale_divider){
+        //         movealllines();
+        //         deletedLine = -1;
+        //         deletCounter = 0
+        //         break;}
+        //     }
+        //     }
+
+          const beforelength = this.piecesInUnit.length;
+          this.piecesInUnit=  this.piecesInUnit.filter(checkY);
+          const afterlength = this.piecesInUnit.length; 
+          deletCounter =   deletCounter+ (beforelength - afterlength)  ;
         }
+
             
-             }
+        }
         
         
         render = function(){
@@ -339,6 +367,14 @@ class pieceUnit {
             for (let i= 0; i<this.piecesInUnit.length;i++){
                 this.piecesInUnit[i].turn();  }}
         }
+
+        movealllines = function(){
+         if (!this.focused){
+            for (let i= 0; i<this.piecesInUnit.length;i++){
+                  this.piecesInUnit[i].movedown();  }}
+
+
+        }
    
 }
 
@@ -403,7 +439,6 @@ if(canspawn){
     canspawn = false;
     nextshape = randomshape(); 
     nextshapeID = arrayMap();
-    console.log(nextshapeID);
 }
 }else{
     unitsInGame[unitsInGame.length-1].fall(false);
@@ -437,6 +472,30 @@ function spawnUnit(){
     unitsInGame.push(NewUnit);
 }
     
+//
+
+function movealllines(){
+
+    for (let i= 0; i<unitsInGame.length;i++){  
+        unitsInGame[i].movealllines();    
+    }
+
+}
+
+
+//
+
+function checkY(element){
+    if (deletCounter===scale_divider){
+        movealllines();
+        deletedLine = -1;
+        deletCounter = 0;
+        gameScore++;
+        console.log(gameScore);
+} 
+return element.y !== deletedLine;
+
+}
     
 
 //random unitshape
@@ -546,6 +605,10 @@ addEventListener("keydown", e => {
         case 82: // r
             unitsInGame = [];
             spawnUnit();
+            nextshape = randomshape();
+            nextshapeID = arrayMap();
+            deletedLine = 0;
+            deletCounter = 0;
             break;
             
         case 83: //s
