@@ -13,7 +13,7 @@ let lastRenderTime = 0;
 let direction_push = 0;
 
 
-let fallInterval = 5;
+let fallInterval = 10;
 let fallCounter = 0;
 
 let unitsInGame = [];
@@ -440,6 +440,7 @@ if(canspawn){
     canspawn = false;
     nextshape = randomshape(); 
     nextshapeID = arrayMap();
+    
 }
 }else{
     unitsInGame[unitsInGame.length-1].fall(false);
@@ -456,8 +457,13 @@ function render(){
 
 ctx.clearRect(0,0,can.width,can.height)
 ctx2.clearRect(0,0,can.width,can.height)
+ctx3.clearRect(0,0,can.width,can.height)
+
     
 preview();
+
+score();
+
     
 for (let i= 0; i<unitsInGame.length;i++){   
 unitsInGame[i].render();}
@@ -493,6 +499,7 @@ function checkY(element){
         deletCounter = 0;
         gameScore++;
         console.log(gameScore);
+        fallInterval--
 } 
 return element.y !== deletedLine;
 
@@ -602,6 +609,12 @@ function pausegame(){
         document.getElementsByClassName("pause")[0].style.visibility = "hidden";}
 }
 
+function score(){
+    ctx3.font = "20px monospace";
+    ctx3.fillText("Score: "+gameScore, 10, 20);
+
+}
+
 //input handling und so
 
 addEventListener("keydown", e => {
@@ -623,6 +636,7 @@ addEventListener("keydown", e => {
             nextshapeID = arrayMap();
             deletedLine = 0;
             deletCounter = 0;
+            gameScore = 0;
             break;
             
         case 83: //s
