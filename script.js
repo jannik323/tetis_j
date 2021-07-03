@@ -579,6 +579,21 @@ function arrayMap() {
 return pos;
 }
 
+//pause game 
+
+function pausegame(){
+
+    if (GameSpeed != 0){
+        document.getElementsByClassName("pause")[0].style.visibility = "visible";
+        console.log("Game has been stopped");
+        lastGameSpeed = GameSpeed;
+        GameSpeed = 0 ;
+    }else{
+        console.log("Game has been continued");
+        GameSpeed = lastGameSpeed;
+        document.getElementsByClassName("pause")[0].style.visibility = "hidden";}
+}
+
 //input handling und so
 
 addEventListener("keydown", e => {
@@ -591,15 +606,7 @@ addEventListener("keydown", e => {
             direction_push = +1;
             break;
         case 27:
-            if (GameSpeed != 0){
-                document.getElementsByClassName("pause")[0].style.visibility = "visible";
-                console.log("Game has been stopped");
-                lastGameSpeed = GameSpeed;
-                GameSpeed = 0 ;
-            }else{
-                console.log("Game has been continued");
-                GameSpeed = lastGameSpeed;
-                document.getElementsByClassName("pause")[0].style.visibility = "hidden";}
+            pausegame();
             break;
 
         case 82: // r

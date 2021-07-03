@@ -18,8 +18,17 @@
     <div class="second"> 
     <label>Next Unit: </label>
     <canvas id="preview"></canvas>
+    
+    <div class="buttons">
+    <button onclick="direction_push = -1">Left</button>
+    <button onclick="direction_push = +1">Right</button>
+    <button onclick="fallCounter = fallInterval+1">Down</button>
+    <button onclick="unitsInGame[unitsInGame.length-1].turn()">Rotate</button>
+    <button onclick="pausegame()">Pause</button>
+    </div>
     <canvas id="score"></canvas>
-    <div>
+    </div>
+        
     </div>
 
     
