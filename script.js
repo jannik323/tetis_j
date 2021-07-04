@@ -21,10 +21,14 @@ let piecelocationYInGame = [];
 let canspawn = false;
 
 let deletedLine = 0;
+let deletedLines = [];
+
+
 let deletCounter = 0;
 let gameScore = 0;
+let timeout;
 
-
+let highscore = localStorage.getItem("highscore"); 
 
 can.width = 4*window.innerHeight/9;
 can.height = 8*window.innerHeight/9;
@@ -60,7 +64,7 @@ const UnitTemplates = [
     unitName: "piece_L",
     color: "#e46200"},
     
-    {offsets : [{x: 0, y:0},{x: -1, y:0},{x: 1, y:0},{x: 2, y:0}],
+    {offsets : [{x: 0, y:0},{x: -1, y:0},{x: 1, y:0}],
     unitName: "piece_I",
     color: "#01e4e4"},
     
@@ -86,15 +90,33 @@ const UnitTemplates = [
     
 // non default -> selbst ausgedachte    
     
-    {offsets : [{x: 0, y:0},{x: 1, y:0},{x: 2, y:0}
-                ,{x: 0, y:1},{x: 1, y:1}],
+    {offsets : [{x: 0, y:0},{x: -1, y:0},{x: 1, y:0}
+                ,{x: -1, y:1},{x: 0, y:1}],
     unitName: "pieceP",
-    color: "grey"},
+    color: "#a2adac"},
 
     
     {offsets : [{x: 0, y:0},{x: 1, y:0}],
-unitName: "piece_",
-color: "pink"},
+    unitName: "piece_short",
+    color: "#fb9493"},
+
+    {offsets : [{x: 0, y:0},{x: -1, y:0},{x: 1, y:0}
+        ,{x: -1, y:1},{x: 1, y:1}],
+    unitName: "pieceC",
+    color: "#343484"},
+
+    {offsets : [{x: 0, y:0},{x: -1, y:0},{x: 1, y:0}
+        ,{x: -1, y:1},{x: -1, y:-1}],
+    unitName: "pieceTT",
+    color: "#eccd86"},
+
+    {offsets : [{x: 0, y:0}],
+    unitName: "piecedot",
+    color: "#36526a"},
+
+    {offsets : [{x: 0, y:0},{x: 0, y:-1},{x: 1, y:0}],
+    unitName: "pieceV",
+    color: "#7c84f4"},
 
 ]
 
@@ -231,8 +253,8 @@ class pieceUnit {
            
             
             for (let i= 0; i<this.piecesInUnit.length;i++){
-          if (this.piecesInUnit[i].y===(scale_divider*2)-1 || answer_col.y ){
-                setTimeout(()=>{canspawn = true;}, 500);
+          if (this.piecesInUnit[i].y===(scale_divider*2)-1 && this.dy == 1 || answer_col.y ){
+                timeout = setTimeout(()=>{canspawn = true;}, 500);
                 this.focused = false;
                 this.dy = 0;
                 this.dx = 0;
@@ -255,22 +277,6 @@ class pieceUnit {
                piecelocationYInGame[this.piecesInUnit[i].y] = 1 ;  
               }else{
             piecelocationYInGame[this.piecesInUnit[i].y] += 1}}
-
-
-            
-        //  for (let i= 0; i<this.piecesInUnit.length;i++){  //old alternative way with ..problems or smth
-        //     if (this.piecesInUnit[i].y === deletedLine && deletedLine !== -1){
-        //         if(this.piecesInUnit.length === 1){this.piecesInUnit = [];}
-        //         else{
-        //         this.piecesInUnit.splice(i,1);}
-        //     deletCounter++
-        //     if (deletCounter===scale_divider){
-        //         movealllines();
-        //         deletedLine = -1;
-        //         deletCounter = 0
-        //         break;}
-        //     }
-        //     }
 
           const beforelength = this.piecesInUnit.length;
           this.piecesInUnit=  this.piecesInUnit.filter(checkY);
@@ -332,7 +338,7 @@ class pieceUnit {
 
                     //collision y    
                     if(this.piecesInUnit[piecesInUnit_i].y+1 === unitsInGame[unit_i].piecesInUnit[i].y && 
-                      this.piecesInUnit[piecesInUnit_i].x === unitsInGame[unit_i].piecesInUnit[i].x){
+                      this.piecesInUnit[piecesInUnit_i].x === unitsInGame[unit_i].piecesInUnit[i].x && this.dy == 1){
                     collisionList.y = true; 
                     }
                         
@@ -364,7 +370,8 @@ class pieceUnit {
         
         
         turn = function(){
-            if (this.focused){
+            const answer_col = this.checkcollision();
+            if (this.focused && !answer_col.y && !answer_col.x && this.unit !== "piece_O"){
             for (let i= 0; i<this.piecesInUnit.length;i++){
                 this.piecesInUnit[i].turn();  }}
         }
@@ -409,15 +416,12 @@ window.requestAnimationFrame(main);
 function checkforLine (){
 for (let i = 0; i<piecelocationYInGame.length; i++){
 if (piecelocationYInGame[i] === scale_divider){
-deletedLine = i;  
-    
-    
-    
+deletedLines.push(i);    
+deletedLine = i; } 
 }
-    
-    
-}
-    
+if(piecelocationYInGame[0] > 0 ){
+location.reload();
+}    
 }
 
 //update
@@ -447,6 +451,7 @@ if(canspawn){
 }
  
 deletedLine = -1;    
+deletedLines = [];
 
 }
 
@@ -477,6 +482,7 @@ function spawnUnit(){
     
     const NewUnit = new pieceUnit(scale_divider/2,0,nextshape);
     unitsInGame.push(NewUnit);
+    gameScore++;
 }
     
 //
@@ -496,12 +502,22 @@ function checkY(element){
     if (deletCounter===scale_divider){
         movealllines();
         deletedLine = -1;
+        deletedLines = [];
         deletCounter = 0;
-        gameScore++;
-        console.log(gameScore);
-        fallInterval--
+        gameScore+=10;
+        if(gameScore>highscore){localStorage.setItem("highscore", gameScore); gameScore=gameScore;}
+        fallInterval -= 0.5;
 } 
 return element.y !== deletedLine;
+
+// for (let i = 0;i<deletedLines.length;i++){
+//     if(element.y != deletedLines[i]){
+//         return true}
+        
+//     }
+//     return false;
+//     }
+        
 
 }
     
@@ -539,49 +555,30 @@ function preview(){
         let thiy = (UnitTemplates[nextshapeID].offsets[i].y*scale2)+scale2*scaledivider2/2-scale2;
 
         ctx2.fillStyle= "black";
-         ctx2.strokeRect((UnitTemplates[nextshapeID].offsets[i].x*scale2)+scale2*scaledivider2/2-scale2, 
-         (UnitTemplates[nextshapeID].offsets[i].y*scale2)+scale2*scaledivider2/2-scale2,
-         scale2, scale2);
+        ctx2.strokeRect((UnitTemplates[nextshapeID].offsets[i].x*scale2)+scale2*scaledivider2/2-scale2, 
+         (UnitTemplates[nextshapeID].offsets[i].y*scale2)+scale2*scaledivider2/2-scale2, scale2, scale2);
+        ctx2.lineWidth = 4;
+        ctx2.globalAlpha = 0.5;
+        ctx2.strokeStyle = "white";
+        ctx2.beginPath();
+        ctx2.moveTo((thix)+scale2/10,(thiy)+scale2/10);
+        ctx2.lineTo((thix)+scale2-scale2/10,(thiy)+scale2/10);
+        ctx2.stroke();
+        ctx2.beginPath();
+        ctx2.moveTo((thix)+scale2/10,(thiy)+scale2/10);
+        ctx2.lineTo((thix)+scale2/10,(thiy)+scale2-scale2/10);
+        ctx2.stroke();
+        ctx2.strokeStyle = "black";
+        ctx2.globalAlpha = 0.5;
+        ctx2.beginPath();
+        ctx2.moveTo((thix)+scale2/10,(thiy)+scale2-scale2/10);
+        ctx2.lineTo((thix)+scale2-scale2/10,(thiy)+scale2-scale2/10);
+        ctx2.lineTo((thix)+scale2-scale2/10,(thiy)+scale2/10);     
+        ctx2.stroke();
+        ctx2.strokeStyle = "black";
+        ctx2.globalAlpha = 1;        
         
-         ctx2.lineWidth = 4;
-         ctx2.globalAlpha = 0.5;
-         ctx2.strokeStyle = "white";
-
-         ctx2.beginPath();
-          ctx2.moveTo((thix)+scale2/10,(thiy)+scale2/10);
-         ctx2.lineTo((thix)+scale2-scale2/10,(thiy)+scale2/10);
-             ctx2.stroke();
-            ctx2.beginPath();
-           ctx2.moveTo((thix)+scale2/10,(thiy)+scale2/10);
-             ctx2.lineTo((thix)+scale2/10,(thiy)+scale2-scale2/10);
-          ctx2.stroke();
-          ctx2.strokeStyle = "black";
-            ctx2.globalAlpha = 0.5;
-            ctx2.beginPath();
-            ctx2.moveTo((thix)+scale2/10,(thiy)+scale2-scale2/10);
-             ctx2.lineTo((thix)+scale2-scale2/10,(thiy)+scale2-scale2/10);
-             ctx2.lineTo((thix)+scale2-scale2/10,(thiy)+scale2/10);
-             
-             ctx2.stroke();
-             
-          ctx2.strokeStyle = "black";
-             ctx2.globalAlpha = 1;        
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    }
-
-        
+    }    
 
 }
 
@@ -609,11 +606,16 @@ function pausegame(){
         document.getElementsByClassName("pause")[0].style.visibility = "hidden";}
 }
 
+//display score
+
 function score(){
     ctx3.font = "20px monospace";
     ctx3.fillText("Score: "+gameScore, 10, 20);
+    ctx3.fillText("Highscore: "+highscore, 10, 40);
+
 
 }
+
 
 //input handling und so
 
@@ -630,13 +632,7 @@ addEventListener("keydown", e => {
             pausegame();
             break;
         case 82: // r
-            unitsInGame = [];
-            spawnUnit();
-            nextshape = randomshape();
-            nextshapeID = arrayMap();
-            deletedLine = 0;
-            deletCounter = 0;
-            gameScore = 0;
+            location.reload();
             break;
             
         case 83: //s
