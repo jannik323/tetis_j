@@ -92,8 +92,13 @@ const UnitTemplates = [
     
     {offsets : [{x: 0, y:0},{x: -1, y:0},{x: 1, y:0}
                 ,{x: -1, y:1},{x: 0, y:1}],
-    unitName: "pieceP",
+    unitName: "pieceQ",
     color: "#a2adac"},
+
+    {offsets : [{x: 0, y:0},{x: -1, y:0},{x: 1, y:0}
+        ,{x: 1, y:1},{x: 0, y:1}],
+    unitName: "pieceP",
+    color: "#4c4c4c"},
 
     
     {offsets : [{x: 0, y:0},{x: 1, y:0}],
@@ -505,7 +510,7 @@ function checkY(element){
         deletedLines = [];
         deletCounter = 0;
         gameScore+=10;
-        if(gameScore>highscore){localStorage.setItem("highscore", gameScore); gameScore=gameScore;}
+        if(gameScore>highscore){localStorage.setItem("highscore", gameScore); highscore=gameScore;}
         fallInterval -= 0.5;
 } 
 return element.y !== deletedLine;
