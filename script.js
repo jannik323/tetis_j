@@ -198,8 +198,8 @@ class piece {
         
     }
 
-    movedown = function(){
-        if(this.y<deletedLine){
+    movedown = function(Line){
+        if(this.y<Line){
         this.y++;}
 
     }
@@ -285,8 +285,10 @@ class pieceUnit {
 
           const beforelength = this.piecesInUnit.length;
           this.piecesInUnit=  this.piecesInUnit.filter(checkY);
+          
           const afterlength = this.piecesInUnit.length; 
           deletCounter =   deletCounter+ (beforelength - afterlength)  ;
+          console.log(deletCounter)
         }
 
             
@@ -381,10 +383,10 @@ class pieceUnit {
                 this.piecesInUnit[i].turn();  }}
         }
 
-        movealllines = function(){
+        movealllines = function(Line){
          if (!this.focused){
             for (let i= 0; i<this.piecesInUnit.length;i++){
-                  this.piecesInUnit[i].movedown();  }}
+                  this.piecesInUnit[i].movedown(Line);  }}
 
 
         }
@@ -492,10 +494,10 @@ function spawnUnit(){
     
 //
 
-function movealllines(){
+function movealllines(Line){
 
-    for (let i= 0; i<unitsInGame.length;i++){  
-        unitsInGame[i].movealllines();    
+    for (let i= 0; i<unitsInGame.length;i++){ 
+        unitsInGame[i].movealllines(Line);  
     }
 
 }
@@ -504,8 +506,16 @@ function movealllines(){
 //
 
 function checkY(element){
-    if (deletCounter===scale_divider){
-        movealllines();
+    if (deletCounter===scale_divider*deletedLines.length && deletedLines.length !== 0){
+        console.log(deletedLines);
+        for (let a= deletedLines.length-1; a>=0;a--) {
+            if(a !==deletedLines.length-1){
+            movealllines(deletedLines[a]+deletedLines.length-a);}
+            else{
+            movealllines(deletedLines[a]);  
+            }
+            console.log(" moving above the line :"+ deletedLines[a]);
+        }
         deletedLine = -1;
         deletedLines = [];
         deletCounter = 0;
@@ -513,19 +523,18 @@ function checkY(element){
         if(gameScore>highscore){localStorage.setItem("highscore", gameScore); highscore=gameScore;}
         fallInterval -= 0.5;
 } 
-return element.y !== deletedLine;
+// return element.y !== deletedLine;
 
-// for (let i = 0;i<deletedLines.length;i++){
-//     if(element.y != deletedLines[i]){
-//         return true}
-        
-//     }
-//     return false;
-//     }
-        
 
-}
+
+let returner = true;
+for (let i = 0;i<deletedLines.length;i++){
+    if(element.y === deletedLines[i]){
+        returner = false; }
     
+}
+return returner;
+} 
 
 //random unitshape
 
@@ -614,7 +623,7 @@ function pausegame(){
 //display score
 
 function score(){
-    ctx3.font = "20px monospace";
+    ctx3.font = "12px monospace";
     ctx3.fillText("Score: "+gameScore, 10, 20);
     ctx3.fillText("Highscore: "+highscore, 10, 40);
 
