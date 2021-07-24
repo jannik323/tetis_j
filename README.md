@@ -1,5 +1,5 @@
 # tetis_j
-this is my self made tetris clone that im working on as a project to learn javascript. so far its been going pretty well.
+this is my self made tetris clone that i worked on as a project to learn javascript. 
 
 
 a and d to move 
